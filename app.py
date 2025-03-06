@@ -1,3 +1,6 @@
+# POUR UTILISER algokit compile py --out-dir ./app app.py
+#PUIS algokit generate client app/DigitalMarketplace.arc32.json --output client.py
+
 from algopy import (
     Asset,  # On Algorand, assets are native objects rather than smart contracts
     Global, # Global is used to access global variables from the network

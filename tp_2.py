@@ -35,11 +35,8 @@ indexer_client = algorand.client.indexer
 alice: au.SigningAccount = account_creation(algorand, "ALICE", au.AlgoAmount(algo=10_000))
 bob: au.SigningAccount = account_creation(algorand, "BOB", au.AlgoAmount(algo=100))
 
-
-# Send 1 token from Alice to Bob
 asset_id = generate_test_asset(algorand, alice)
 params = algod_client.suggested_params()
-
 # Bob opts-in to receive the asset
 opt_in_txn = sdk.transaction.AssetTransferTxn(
     sender=bob.address,
@@ -70,11 +67,29 @@ asset_transfer_txn = sdk.transaction.AssetTransferTxn(
 # Sign the transaction
 signed_asset_transfer_txn = asset_transfer_txn.sign(alice.private_key)
 
-# Send the transaction
-tx_id = algod_client.send_transaction(signed_asset_transfer_txn)
+# Send 1 token from Alice to Bob only if Bob sends 1 algo to Alice
+params = algod_client.suggested_params()
 
-# Wait for confirmation
+# Create a payment transaction from Bob to Alice (1 Algo)
+pay_txn_bob_to_alice = sdk.transaction.PaymentTxn(bob.address, params, alice.address, 1000000)
+
+# Create an asset transfer transaction from Alice to Bob (1 token)
+asset_transfer_txn = sdk.transaction.AssetTransferTxn(alice.address, params, bob.address, 1, asset_id)
+
+# Group the transactions
+gid = sdk.transaction.calculate_group_id([pay_txn_bob_to_alice, asset_transfer_txn])
+pay_txn_bob_to_alice.group = gid
+asset_transfer_txn.group = gid
+
+# Sign the transactions again with the group ID
+signed_txn_bob_to_alice = pay_txn_bob_to_alice.sign(bob.private_key)
+signed_asset_transfer_txn = asset_transfer_txn.sign(alice.private_key)
+
+# Send the grouped transactions
+signed_group = [signed_txn_bob_to_alice, signed_asset_transfer_txn]
+tx_id = algod_client.send_transactions(signed_group)
+
 res = sdk.transaction.wait_for_confirmation(algod_client, tx_id, 4)
 
-print('Asset transfer confirmed, round: '
-      f'{res["confirmed-round"]}')
+print('Transaction confirmed, round: '
+    f'{res["confirmed-round"]}')
