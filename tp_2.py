@@ -93,3 +93,4 @@ res = sdk.transaction.wait_for_confirmation(algod_client, tx_id, 4)
 
 print('Transaction confirmed, round: '
     f'{res["confirmed-round"]}')
+display_info(algorand, ["ALICE"])

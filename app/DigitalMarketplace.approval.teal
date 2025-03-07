@@ -5,7 +5,7 @@
 main:
     intcblock 0 1 4
     bytecblock "asset_id" "unitary_price"
-    // app.py:11
+    // app.py:14
     // class DigitalMarketplace(arc4.ARC4Contract):
     txn NumAppArgs
     bz main_after_if_else@11
@@ -14,13 +14,13 @@ main:
     match main_create_application_route@3 main_set_price_route@4 main_opt_in_to_asset_route@5 main_buy_route@6 main_delete_application_route@7
 
 main_after_if_else@11:
-    // app.py:11
+    // app.py:14
     // class DigitalMarketplace(arc4.ARC4Contract):
     intc_0 // 0
     return
 
 main_delete_application_route@7:
-    // app.py:62
+    // app.py:65
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
     pushint 5 // DeleteApplication
@@ -33,14 +33,14 @@ main_delete_application_route@7:
     return
 
 main_buy_route@6:
-    // app.py:44
+    // app.py:47
     // @arc4.abimethod
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // app.py:11
+    // app.py:14
     // class DigitalMarketplace(arc4.ARC4Contract):
     txn GroupIndex
     intc_1 // 1
@@ -52,14 +52,14 @@ main_buy_route@6:
     assert // transaction type is pay
     txna ApplicationArgs 1
     btoi
-    // app.py:44
+    // app.py:47
     // @arc4.abimethod
     callsub buy
     intc_1 // 1
     return
 
 main_opt_in_to_asset_route@5:
-    // app.py:28-30
+    // app.py:31-33
     // # Before any account can receive an asset, it must opt-in to it
     // # This method enables the application to opt-in to the asset
     // @arc4.abimethod
@@ -68,7 +68,7 @@ main_opt_in_to_asset_route@5:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // app.py:11
+    // app.py:14
     // class DigitalMarketplace(arc4.ARC4Contract):
     txn GroupIndex
     intc_1 // 1
@@ -78,7 +78,7 @@ main_opt_in_to_asset_route@5:
     intc_1 // pay
     ==
     assert // transaction type is pay
-    // app.py:28-30
+    // app.py:31-33
     // # Before any account can receive an asset, it must opt-in to it
     // # This method enables the application to opt-in to the asset
     // @arc4.abimethod
@@ -87,25 +87,25 @@ main_opt_in_to_asset_route@5:
     return
 
 main_set_price_route@4:
-    // app.py:23
+    // app.py:26
     // @arc4.abimethod
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // app.py:11
+    // app.py:14
     // class DigitalMarketplace(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
-    // app.py:23
+    // app.py:26
     // @arc4.abimethod
     callsub set_price
     intc_1 // 1
     return
 
 main_create_application_route@3:
-    // app.py:14
+    // app.py:17
     // @arc4.abimethod(allow_actions=["NoOp"],create="require")
     txn OnCompletion
     !
@@ -113,14 +113,14 @@ main_create_application_route@3:
     txn ApplicationID
     !
     assert // can only call when creating
-    // app.py:11
+    // app.py:14
     // class DigitalMarketplace(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
     txnas Assets
     txna ApplicationArgs 2
     btoi
-    // app.py:14
+    // app.py:17
     // @arc4.abimethod(allow_actions=["NoOp"],create="require")
     callsub create_application
     intc_1 // 1
@@ -129,7 +129,7 @@ main_create_application_route@3:
 
 // app.DigitalMarketplace.create_application(asset_id: uint64, unitary_price: uint64) -> void:
 create_application:
-    // app.py:14-19
+    // app.py:17-22
     // @arc4.abimethod(allow_actions=["NoOp"],create="require")
     //     # There are certain actions that a contract call can do
     //     # Some examples are UpdateApplication, DeleteApplication, and NoOp
@@ -137,12 +137,12 @@ create_application:
     //     # Require that this method is only callable when creating the app
     // def create_application(self, asset_id: Asset, unitary_price: UInt64) -> None:
     proto 2 0
-    // app.py:20
+    // app.py:23
     // self.asset_id = asset_id.id # The ID of the asset we're selling
     bytec_0 // "asset_id"
     frame_dig -2
     app_global_put
-    // app.py:21
+    // app.py:24
     // self.unitary_price = unitary_price # The initial sale price
     bytec_1 // "unitary_price"
     frame_dig -1
@@ -152,17 +152,17 @@ create_application:
 
 // app.DigitalMarketplace.set_price(unitary_price: uint64) -> void:
 set_price:
-    // app.py:23-24
+    // app.py:26-27
     // @arc4.abimethod
     // def set_price(self, unitary_price: UInt64) -> None:
     proto 1 0
-    // app.py:25
+    // app.py:28
     // assert Txn.sender == Global.creator_address # We don't want anyone to be able to modify the price, only the app creator can
     txn Sender
     global CreatorAddress
     ==
     assert
-    // app.py:26
+    // app.py:29
     // self.unitary_price = unitary_price
     bytec_1 // "unitary_price"
     frame_dig -1
@@ -172,13 +172,13 @@ set_price:
 
 // app.DigitalMarketplace.opt_in_to_asset(mbr_pay: uint64) -> void:
 opt_in_to_asset:
-    // app.py:28-31
+    // app.py:31-34
     // # Before any account can receive an asset, it must opt-in to it
     // # This method enables the application to opt-in to the asset
     // @arc4.abimethod
     // def opt_in_to_asset(self, mbr_pay: gtxn.PaymentTransaction) -> None: # Need to send a payment to cover data usage
     proto 1 0
-    // app.py:32-33
+    // app.py:35-36
     // # We want to make sure that the application address is not already opted in
     // assert not Global.current_application_address.is_opted_in(Asset(self.asset_id))
     global CurrentApplicationAddress
@@ -190,14 +190,14 @@ opt_in_to_asset:
     bury 1
     !
     assert
-    // app.py:34
+    // app.py:37
     // assert mbr_pay.receiver == Global.current_application_address
     frame_dig -1
     gtxns Receiver
     global CurrentApplicationAddress
     ==
     assert
-    // app.py:35-37
+    // app.py:38-40
     // # Every accounts has an MBR of 0.1 ALGO (Global.min_balance)
     // # Opting into an asset increases the MBR by 0.1 ALGO (Global.asset_opt_in_min_balance)
     // assert mbr_pay.amount == Global.min_balance + Global.asset_opt_in_min_balance
@@ -208,35 +208,35 @@ opt_in_to_asset:
     +
     ==
     assert
-    // app.py:38-42
+    // app.py:41-45
     // itxn.AssetTransfer(
     //     xfer_asset=self.asset_id,
     //     asset_receiver=Global.current_application_address,
     //     asset_amount=0,
     // ).submit()
     itxn_begin
-    // app.py:39
+    // app.py:42
     // xfer_asset=self.asset_id,
     intc_0 // 0
     bytec_0 // "asset_id"
     app_global_get_ex
     assert // check self.asset_id exists
-    // app.py:40
+    // app.py:43
     // asset_receiver=Global.current_application_address,
     global CurrentApplicationAddress
-    // app.py:41
+    // app.py:44
     // asset_amount=0,
     intc_0 // 0
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field XferAsset
-    // app.py:38
+    // app.py:41
     // itxn.AssetTransfer(
     intc_2 // axfer
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // app.py:38-42
+    // app.py:41-45
     // itxn.AssetTransfer(
     //     xfer_asset=self.asset_id,
     //     asset_receiver=Global.current_application_address,
@@ -248,11 +248,11 @@ opt_in_to_asset:
 
 // app.DigitalMarketplace.buy(buyer_txn: uint64, quantity: uint64) -> void:
 buy:
-    // app.py:44-45
+    // app.py:47-48
     // @arc4.abimethod
     // def buy(self, buyer_txn: gtxn.PaymentTransaction, quantity: UInt64) -> None:
     proto 2 0
-    // app.py:49-51
+    // app.py:52-54
     // # We need to verify that the payment is being sent to the application
     // # and is enough to cover the cost of the asset
     // assert buyer_txn.sender == Txn.sender
@@ -261,14 +261,14 @@ buy:
     txn Sender
     ==
     assert
-    // app.py:52
+    // app.py:55
     // assert buyer_txn.receiver == Global.current_application_address
     frame_dig -2
     gtxns Receiver
     global CurrentApplicationAddress
     ==
     assert
-    // app.py:53
+    // app.py:56
     // assert buyer_txn.amount == self.unitary_price * quantity
     frame_dig -2
     gtxns Amount
@@ -280,7 +280,7 @@ buy:
     *
     ==
     assert
-    // app.py:55-60
+    // app.py:58-63
     // # Once we've verified the payment, we can transfer the asset
     // itxn.AssetTransfer(
     //     xfer_asset=self.asset_id,
@@ -288,27 +288,27 @@ buy:
     //     asset_amount=quantity,
     // ).submit()
     itxn_begin
-    // app.py:57
+    // app.py:60
     // xfer_asset=self.asset_id,
     intc_0 // 0
     bytec_0 // "asset_id"
     app_global_get_ex
     assert // check self.asset_id exists
-    // app.py:58
+    // app.py:61
     // asset_receiver=Txn.sender,
     txn Sender
     frame_dig -1
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field XferAsset
-    // app.py:55-56
+    // app.py:58-59
     // # Once we've verified the payment, we can transfer the asset
     // itxn.AssetTransfer(
     intc_2 // axfer
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // app.py:55-60
+    // app.py:58-63
     // # Once we've verified the payment, we can transfer the asset
     // itxn.AssetTransfer(
     //     xfer_asset=self.asset_id,
@@ -321,13 +321,13 @@ buy:
 
 // app.DigitalMarketplace.delete_application() -> void:
 delete_application:
-    // app.py:64
+    // app.py:67
     // assert Txn.sender == Global.creator_address # Send all the unsold assets to the creator
     txn Sender
     global CreatorAddress
     ==
     assert
-    // app.py:65-71
+    // app.py:68-74
     // itxn.AssetTransfer(
     //     xfer_asset=self.asset_id,
     //     asset_receiver=Global.creator_address,
@@ -336,33 +336,33 @@ delete_application:
     //     asset_close_to=Global.creator_address,
     // ).submit()
     itxn_begin
-    // app.py:66
+    // app.py:69
     // xfer_asset=self.asset_id,
     intc_0 // 0
     bytec_0 // "asset_id"
     app_global_get_ex
     assert // check self.asset_id exists
-    // app.py:67
+    // app.py:70
     // asset_receiver=Global.creator_address,
     global CreatorAddress
-    // app.py:69-70
+    // app.py:72-73
     // # Close the asset to unlock the 0.1 ALGO that was locked in opt_in_to_asset
     // asset_close_to=Global.creator_address,
     dup
     itxn_field AssetCloseTo
-    // app.py:68
+    // app.py:71
     // asset_amount=0,
     intc_0 // 0
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field XferAsset
-    // app.py:65
+    // app.py:68
     // itxn.AssetTransfer(
     intc_2 // axfer
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // app.py:65-71
+    // app.py:68-74
     // itxn.AssetTransfer(
     //     xfer_asset=self.asset_id,
     //     asset_receiver=Global.creator_address,
@@ -371,7 +371,7 @@ delete_application:
     //     asset_close_to=Global.creator_address,
     // ).submit()
     itxn_submit
-    // app.py:72
+    // app.py:75
     // itxn.Payment(receiver=Global.creator_address, amount=0, close_remainder_to=Global.creator_address).submit()
     itxn_begin
     global CreatorAddress
