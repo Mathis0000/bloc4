@@ -19,7 +19,7 @@ from algosdk.v2client.models import SimulateTraceConfig
 import algokit_utils
 from algokit_utils import AlgorandClient as _AlgoKitAlgorandClient
 
-_APP_SPEC_JSON = r"""{"arcs": [], "bareActions": {"call": [], "create": ["NoOp"]}, "methods": [{"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "string", "desc": "The user's name.", "name": "name"}], "name": "register", "returns": {"type": "(uint64,string,uint64)", "desc": "The user's profile information.", "struct": "User"}, "desc": "Registers a user and returns their profile information.", "events": []}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "pay", "desc": "The payment transaction.", "name": "payment"}], "name": "fund_account", "returns": {"type": "uint64", "desc": "The user's updated balance."}, "desc": "Funds a user's account.", "events": []}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "byte[]", "desc": "The hash of the asset name.", "name": "asset_id"}, {"type": "uint64", "desc": "The quantity to purchase.", "name": "quantity"}], "name": "buy_asset", "returns": {"type": "void"}, "desc": "Buys a game asset.", "events": []}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "(string,string,uint64)", "desc": "The game asset information.", "name": "asset", "struct": "GameAsset"}], "name": "admin_upsert_asset", "returns": {"type": "void"}, "desc": "Updates or inserts a game asset.", "events": []}], "name": "Game", "state": {"keys": {"box": {}, "global": {}, "local": {}}, "maps": {"box": {}, "global": {}, "local": {}}, "schema": {"global": {"bytes": 0, "ints": 0}, "local": {"bytes": 0, "ints": 0}}}, "structs": {"User": [{"name": "registered_at", "type": "uint64"}, {"name": "name", "type": "string"}, {"name": "balance", "type": "uint64"}], "GameAsset": [{"name": "name", "type": "string"}, {"name": "description", "type": "string"}, {"name": "price", "type": "uint64"}]}, "source": {"approval": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhcHAuR2FtZS5fX2FsZ29weV9lbnRyeXBvaW50X3dpdGhfaW5pdCgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAxIDAgMTAKICAgIGJ5dGVjYmxvY2sgMHgxNTFmN2M3NSAiYXNzZXQiCiAgICAvLyBhcHAucHk6MzIKICAgIC8vIGNsYXNzIEdhbWUoQVJDNENvbnRyYWN0KToKICAgIHR4biBOdW1BcHBBcmdzCiAgICBieiBtYWluX2JhcmVfcm91dGluZ0A5CiAgICBwdXNoYnl0ZXNzIDB4MTQzMWY4NTYgMHhlYzQ3NmRiZCAweDgyOGYzMGQzIDB4NjlmNWM4NjMgLy8gbWV0aG9kICJyZWdpc3RlcihzdHJpbmcpKHVpbnQ2NCxzdHJpbmcsdWludDY0KSIsIG1ldGhvZCAiZnVuZF9hY2NvdW50KHBheSl1aW50NjQiLCBtZXRob2QgImJ1eV9hc3NldChieXRlW10sdWludDY0KXZvaWQiLCBtZXRob2QgImFkbWluX3Vwc2VydF9hc3NldCgoc3RyaW5nLHN0cmluZyx1aW50NjQpKXZvaWQiCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCBtYWluX3JlZ2lzdGVyX3JvdXRlQDUgbWFpbl9mdW5kX2FjY291bnRfcm91dGVANiBtYWluX2J1eV9hc3NldF9yb3V0ZUA3IG1haW5fYWRtaW5fdXBzZXJ0X2Fzc2V0X3JvdXRlQDgKCm1haW5fYWZ0ZXJfaWZfZWxzZUAxMToKICAgIC8vIGFwcC5weTozMgogICAgLy8gY2xhc3MgR2FtZShBUkM0Q29udHJhY3QpOgogICAgaW50Y18xIC8vIDAKICAgIHJldHVybgoKbWFpbl9hZG1pbl91cHNlcnRfYXNzZXRfcm91dGVAODoKICAgIC8vIGFwcC5weToxMDEKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBhcHAucHk6MzIKICAgIC8vIGNsYXNzIEdhbWUoQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIC8vIGFwcC5weToxMDEKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgY2FsbHN1YiBhZG1pbl91cHNlcnRfYXNzZXQKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fYnV5X2Fzc2V0X3JvdXRlQDc6CiAgICAvLyBhcHAucHk6NzYKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBhcHAucHk6MzIKICAgIC8vIGNsYXNzIEdhbWUoQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGV4dHJhY3QgMiAwCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAyCiAgICBidG9pCiAgICAvLyBhcHAucHk6NzYKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgY2FsbHN1YiBidXlfYXNzZXQKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fZnVuZF9hY2NvdW50X3JvdXRlQDY6CiAgICAvLyBhcHAucHk6NTYKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBhcHAucHk6MzIKICAgIC8vIGNsYXNzIEdhbWUoQVJDNENvbnRyYWN0KToKICAgIHR4biBHcm91cEluZGV4CiAgICBpbnRjXzAgLy8gMQogICAgLQogICAgZHVwCiAgICBndHhucyBUeXBlRW51bQogICAgaW50Y18wIC8vIHBheQogICAgPT0KICAgIGFzc2VydCAvLyB0cmFuc2FjdGlvbiB0eXBlIGlzIHBheQogICAgLy8gYXBwLnB5OjU2CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIGNhbGxzdWIgZnVuZF9hY2NvdW50CiAgICBieXRlY18wIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX3JlZ2lzdGVyX3JvdXRlQDU6CiAgICAvLyBhcHAucHk6MzgKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBhcHAucHk6MzIKICAgIC8vIGNsYXNzIEdhbWUoQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIC8vIGFwcC5weTozOAogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICBjYWxsc3ViIHJlZ2lzdGVyCiAgICBieXRlY18wIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2JhcmVfcm91dGluZ0A5OgogICAgLy8gYXBwLnB5OjMyCiAgICAvLyBjbGFzcyBHYW1lKEFSQzRDb250cmFjdCk6CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBibnogbWFpbl9hZnRlcl9pZl9lbHNlQDExCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBjcmVhdGluZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKCi8vIGFwcC5HYW1lLnJlZ2lzdGVyKG5hbWU6IGJ5dGVzKSAtPiBieXRlczoKcmVnaXN0ZXI6CiAgICAvLyBhcHAucHk6MzgtMzkKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgLy8gZGVmIHJlZ2lzdGVyKHNlbGYsIG5hbWU6IGFyYzQuU3RyaW5nKSAtPiBVc2VyOgogICAgcHJvdG8gMSAxCiAgICAvLyBhcHAucHk6NDgKICAgIC8vIGlmIFR4bi5zZW5kZXIgbm90IGluIHNlbGYudXNlcjoKICAgIHR4biBTZW5kZXIKICAgIGJveF9sZW4KICAgIGJ1cnkgMQogICAgYm56IHJlZ2lzdGVyX2FmdGVyX2lmX2Vsc2VAMgogICAgLy8gYXBwLnB5OjUwCiAgICAvLyByZWdpc3RlcmVkX2F0PWFyYzQuVUludDY0KEdsb2JhbC5sYXRlc3RfdGltZXN0YW1wKSwKICAgIGdsb2JhbCBMYXRlc3RUaW1lc3RhbXAKICAgIGl0b2IKICAgIC8vIGFwcC5weTo0OS01MwogICAgLy8gc2VsZi51c2VyW1R4bi5zZW5kZXJdID0gVXNlcigKICAgIC8vICAgICByZWdpc3RlcmVkX2F0PWFyYzQuVUludDY0KEdsb2JhbC5sYXRlc3RfdGltZXN0YW1wKSwKICAgIC8vICAgICBuYW1lPW5hbWUsCiAgICAvLyAgICAgYmFsYW5jZT1hcmM0LlVJbnQ2NCgwKSwKICAgIC8vICkKICAgIHB1c2hieXRlcyAweDAwMTIKICAgIGNvbmNhdAogICAgLy8gYXBwLnB5OjUyCiAgICAvLyBiYWxhbmNlPWFyYzQuVUludDY0KDApLAogICAgcHVzaGJ5dGVzIDB4MDAwMDAwMDAwMDAwMDAwMAogICAgLy8gYXBwLnB5OjQ5LTUzCiAgICAvLyBzZWxmLnVzZXJbVHhuLnNlbmRlcl0gPSBVc2VyKAogICAgLy8gICAgIHJlZ2lzdGVyZWRfYXQ9YXJjNC5VSW50NjQoR2xvYmFsLmxhdGVzdF90aW1lc3RhbXApLAogICAgLy8gICAgIG5hbWU9bmFtZSwKICAgIC8vICAgICBiYWxhbmNlPWFyYzQuVUludDY0KDApLAogICAgLy8gKQogICAgY29uY2F0CiAgICBmcmFtZV9kaWcgLTEKICAgIGNvbmNhdAogICAgLy8gYXBwLnB5OjQ5CiAgICAvLyBzZWxmLnVzZXJbVHhuLnNlbmRlcl0gPSBVc2VyKAogICAgdHhuIFNlbmRlcgogICAgLy8gYXBwLnB5OjQ5LTUzCiAgICAvLyBzZWxmLnVzZXJbVHhuLnNlbmRlcl0gPSBVc2VyKAogICAgLy8gICAgIHJlZ2lzdGVyZWRfYXQ9YXJjNC5VSW50NjQoR2xvYmFsLmxhdGVzdF90aW1lc3RhbXApLAogICAgLy8gICAgIG5hbWU9bmFtZSwKICAgIC8vICAgICBiYWxhbmNlPWFyYzQuVUludDY0KDApLAogICAgLy8gKQogICAgZHVwCiAgICBib3hfZGVsCiAgICBwb3AKICAgIHN3YXAKICAgIGJveF9wdXQKCnJlZ2lzdGVyX2FmdGVyX2lmX2Vsc2VAMjoKICAgIC8vIGFwcC5weTo1NAogICAgLy8gcmV0dXJuIHNlbGYudXNlcltUeG4uc2VuZGVyXQogICAgdHhuIFNlbmRlcgogICAgYm94X2dldAogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYudXNlciBlbnRyeSBleGlzdHMKICAgIHJldHN1YgoKCi8vIGFwcC5HYW1lLmZ1bmRfYWNjb3VudChwYXltZW50OiB1aW50NjQpIC0+IGJ5dGVzOgpmdW5kX2FjY291bnQ6CiAgICAvLyBhcHAucHk6NTYtNTcKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgLy8gZGVmIGZ1bmRfYWNjb3VudChzZWxmLCBwYXltZW50OiBndHhuLlBheW1lbnRUcmFuc2FjdGlvbikgLT4gYXJjNC5VSW50NjQ6CiAgICBwcm90byAxIDEKICAgIC8vIGFwcC5weTo2NwogICAgLy8gcGF5bWVudC5yZWNlaXZlciA9PSBHbG9iYWwuY3VycmVudF9hcHBsaWNhdGlvbl9hZGRyZXNzCiAgICBmcmFtZV9kaWcgLTEKICAgIGd0eG5zIFJlY2VpdmVyCiAgICBnbG9iYWwgQ3VycmVudEFwcGxpY2F0aW9uQWRkcmVzcwogICAgPT0KICAgIC8vIGFwcC5weTo2Ni02OAogICAgLy8gYXNzZXJ0ICgKICAgIC8vICAgICBwYXltZW50LnJlY2VpdmVyID09IEdsb2JhbC5jdXJyZW50X2FwcGxpY2F0aW9uX2FkZHJlc3MKICAgIC8vICksICJQYXltZW50IHJlY2VpdmVyIG11c3QgYmUgdGhlIGFwcGxpY2F0aW9uIGFkZHJlc3MiCiAgICBhc3NlcnQgLy8gUGF5bWVudCByZWNlaXZlciBtdXN0IGJlIHRoZSBhcHBsaWNhdGlvbiBhZGRyZXNzCiAgICAvLyBhcHAucHk6NjkKICAgIC8vIGFzc2VydCBwYXltZW50LnNlbmRlciBpbiBzZWxmLnVzZXIsICJVc2VyIG11c3QgYmUgcmVnaXN0ZXJlZCIKICAgIGZyYW1lX2RpZyAtMQogICAgZ3R4bnMgU2VuZGVyCiAgICBkdXAKICAgIGJveF9sZW4KICAgIGJ1cnkgMQogICAgYXNzZXJ0IC8vIFVzZXIgbXVzdCBiZSByZWdpc3RlcmVkCiAgICAvLyBhcHAucHk6NzIKICAgIC8vIHNlbGYudXNlcltwYXltZW50LnNlbmRlcl0uYmFsYW5jZS5uYXRpdmUgKyBwYXltZW50LmFtb3VudAogICAgZHVwCiAgICBib3hfZ2V0CiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi51c2VyIGVudHJ5IGV4aXN0cwogICAgaW50Y18yIC8vIDEwCiAgICBleHRyYWN0X3VpbnQ2NAogICAgZnJhbWVfZGlnIC0xCiAgICBndHhucyBBbW91bnQKICAgICsKICAgIC8vIGFwcC5weTo3MS03MwogICAgLy8gc2VsZi51c2VyW3BheW1lbnQuc2VuZGVyXS5iYWxhbmNlID0gYXJjNC5VSW50NjQoCiAgICAvLyAgICAgc2VsZi51c2VyW3BheW1lbnQuc2VuZGVyXS5iYWxhbmNlLm5hdGl2ZSArIHBheW1lbnQuYW1vdW50CiAgICAvLyApCiAgICBpdG9iCiAgICAvLyBhcHAucHk6NzEKICAgIC8vIHNlbGYudXNlcltwYXltZW50LnNlbmRlcl0uYmFsYW5jZSA9IGFyYzQuVUludDY0KAogICAgZGlnIDEKICAgIGJveF9nZXQKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLnVzZXIgZW50cnkgZXhpc3RzCiAgICAvLyBhcHAucHk6NzEtNzMKICAgIC8vIHNlbGYudXNlcltwYXltZW50LnNlbmRlcl0uYmFsYW5jZSA9IGFyYzQuVUludDY0KAogICAgLy8gICAgIHNlbGYudXNlcltwYXltZW50LnNlbmRlcl0uYmFsYW5jZS5uYXRpdmUgKyBwYXltZW50LmFtb3VudAogICAgLy8gKQogICAgc3dhcAogICAgcmVwbGFjZTIgMTAKICAgIGRpZyAxCiAgICBib3hfZGVsCiAgICBwb3AKICAgIGRpZyAxCiAgICBzd2FwCiAgICBib3hfcHV0CiAgICAvLyBhcHAucHk6NzQKICAgIC8vIHJldHVybiBzZWxmLnVzZXJbcGF5bWVudC5zZW5kZXJdLmJhbGFuY2UKICAgIGJveF9nZXQKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLnVzZXIgZW50cnkgZXhpc3RzCiAgICBleHRyYWN0IDEwIDggLy8gb24gZXJyb3I6IEluZGV4IGFjY2VzcyBpcyBvdXQgb2YgYm91bmRzCiAgICByZXRzdWIKCgovLyBhcHAuR2FtZS5idXlfYXNzZXQoYXNzZXRfaWQ6IGJ5dGVzLCBxdWFudGl0eTogdWludDY0KSAtPiB2b2lkOgpidXlfYXNzZXQ6CiAgICAvLyBhcHAucHk6NzYtNzcKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgLy8gZGVmIGJ1eV9hc3NldChzZWxmLCBhc3NldF9pZDogSGFzaCwgcXVhbnRpdHk6IFF1YW50aXR5KSAtPiBOb25lOgogICAgcHJvdG8gMiAwCiAgICAvLyBhcHAucHk6ODQKICAgIC8vIGFzc2VydCBUeG4uc2VuZGVyIGluIHNlbGYudXNlciwgIlVzZXIgbXVzdCBiZSByZWdpc3RlcmVkIgogICAgdHhuIFNlbmRlcgogICAgYm94X2xlbgogICAgYnVyeSAxCiAgICBhc3NlcnQgLy8gVXNlciBtdXN0IGJlIHJlZ2lzdGVyZWQKICAgIC8vIGFwcC5weTo4NQogICAgLy8gYXNzZXJ0IGFzc2V0X2lkIGluIHNlbGYuYXNzZXQsICJJbnZhbGlkIGFzc2V0IElEIgogICAgYnl0ZWNfMSAvLyAiYXNzZXQiCiAgICBmcmFtZV9kaWcgLTIKICAgIGNvbmNhdAogICAgZHVwCiAgICBib3hfbGVuCiAgICBidXJ5IDEKICAgIGFzc2VydCAvLyBJbnZhbGlkIGFzc2V0IElECiAgICAvLyBhcHAucHk6ODcKICAgIC8vIHVzZXJfYmFsYW5jZSA9IHNlbGYudXNlcltUeG4uc2VuZGVyXS5iYWxhbmNlLm5hdGl2ZQogICAgdHhuIFNlbmRlcgogICAgYm94X2dldAogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYudXNlciBlbnRyeSBleGlzdHMKICAgIGludGNfMiAvLyAxMAogICAgZXh0cmFjdF91aW50NjQKICAgIC8vIGFwcC5weTo4OAogICAgLy8gYXNzZXRfcHJpY2UgPSBzZWxmLmFzc2V0W2Fzc2V0X2lkXS5wcmljZS5uYXRpdmUKICAgIHN3YXAKICAgIGJveF9nZXQKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLmFzc2V0IGVudHJ5IGV4aXN0cwogICAgcHVzaGludCA0IC8vIDQKICAgIGV4dHJhY3RfdWludDY0CiAgICAvLyBhcHAucHk6ODkKICAgIC8vIGFzc2VydCB1c2VyX2JhbGFuY2UgPj0gKHRvdGFsIDo9IGFzc2V0X3ByaWNlICogcXVhbnRpdHkpLCAiSW5zdWZmaWNpZW50IGZ1bmRzIgogICAgZnJhbWVfZGlnIC0xCiAgICAqCiAgICBkdXAyCiAgICA+PQogICAgYXNzZXJ0IC8vIEluc3VmZmljaWVudCBmdW5kcwogICAgLy8gYXBwLnB5OjkxLTkyCiAgICAvLyAjIFVwZGF0ZSB1c2VyIGJhbGFuY2UKICAgIC8vIHNlbGYudXNlcltUeG4uc2VuZGVyXS5iYWxhbmNlID0gYXJjNC5VSW50NjQodXNlcl9iYWxhbmNlIC0gdG90YWwpCiAgICAtCiAgICBpdG9iCiAgICB0eG4gU2VuZGVyCiAgICBkdXAKICAgIGJveF9nZXQKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLnVzZXIgZW50cnkgZXhpc3RzCiAgICB1bmNvdmVyIDIKICAgIHJlcGxhY2UyIDEwCiAgICBkaWcgMQogICAgYm94X2RlbAogICAgcG9wCiAgICBib3hfcHV0CiAgICAvLyBhcHAucHk6OTQtOTUKICAgIC8vICMgSW5zZXJ0IG9yIHVwZGF0ZSB1c2VyLWFzc2V0IGJveAogICAgLy8gdXNlcl9hc3NldF9pZCA9IG9wLnNoYTI1NihUeG4uc2VuZGVyLmJ5dGVzICsgYXNzZXRfaWQpCiAgICB0eG4gU2VuZGVyCiAgICBmcmFtZV9kaWcgLTIKICAgIGNvbmNhdAogICAgc2hhMjU2CiAgICAvLyBhcHAucHk6OTYKICAgIC8vIGlmIHVzZXJfYXNzZXRfaWQgaW4gc2VsZi51c2VyX2Fzc2V0OgogICAgcHVzaGJ5dGVzICJ1c2VyX2Fzc2V0IgogICAgc3dhcAogICAgY29uY2F0CiAgICBkdXAKICAgIGJveF9sZW4KICAgIGJ1cnkgMQogICAgYnogYnV5X2Fzc2V0X2Vsc2VfYm9keUAyCiAgICAvLyBhcHAucHk6OTcKICAgIC8vIHNlbGYudXNlcl9hc3NldFt1c2VyX2Fzc2V0X2lkXSArPSBxdWFudGl0eQogICAgZHVwCiAgICBib3hfZ2V0CiAgICBzd2FwCiAgICBidG9pCiAgICBzd2FwCiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi51c2VyX2Fzc2V0IGVudHJ5IGV4aXN0cwogICAgZnJhbWVfZGlnIC0xCiAgICArCiAgICBpdG9iCiAgICBib3hfcHV0CiAgICByZXRzdWIKCmJ1eV9hc3NldF9lbHNlX2JvZHlAMjoKICAgIC8vIGFwcC5weTo5OQogICAgLy8gc2VsZi51c2VyX2Fzc2V0W3VzZXJfYXNzZXRfaWRdID0gcXVhbnRpdHkKICAgIGZyYW1lX2RpZyAtMQogICAgaXRvYgogICAgYm94X3B1dAogICAgcmV0c3ViCgoKLy8gYXBwLkdhbWUuYWRtaW5fdXBzZXJ0X2Fzc2V0KGFzc2V0OiBieXRlcykgLT4gdm9pZDoKYWRtaW5fdXBzZXJ0X2Fzc2V0OgogICAgLy8gYXBwLnB5OjEwMS0xMDIKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgLy8gZGVmIGFkbWluX3Vwc2VydF9hc3NldChzZWxmLCBhc3NldDogR2FtZUFzc2V0KSAtPiBOb25lOgogICAgcHJvdG8gMSAwCiAgICAvLyBhcHAucHk6MTA5CiAgICAvLyBUeG4uc2VuZGVyID09IEdsb2JhbC5jcmVhdG9yX2FkZHJlc3MKICAgIHR4biBTZW5kZXIKICAgIGdsb2JhbCBDcmVhdG9yQWRkcmVzcwogICAgPT0KICAgIC8vIGFwcC5weToxMDgtMTEwCiAgICAvLyBhc3NlcnQgKAogICAgLy8gICAgIFR4bi5zZW5kZXIgPT0gR2xvYmFsLmNyZWF0b3JfYWRkcmVzcwogICAgLy8gKSwgIk9ubHkgdGhlIGNyZWF0b3IgY2FuIGNhbGwgdGhpcyBtZXRob2QiCiAgICBhc3NlcnQgLy8gT25seSB0aGUgY3JlYXRvciBjYW4gY2FsbCB0aGlzIG1ldGhvZAogICAgLy8gYXBwLnB5OjExMQogICAgLy8gc2VsZi5hc3NldFtvcC5zaGEyNTYoYXNzZXQubmFtZS5ieXRlcyldID0gYXNzZXQuY29weSgpCiAgICBmcmFtZV9kaWcgLTEKICAgIGludGNfMSAvLyAwCiAgICBleHRyYWN0X3VpbnQxNgogICAgZnJhbWVfZGlnIC0xCiAgICBwdXNoaW50IDIgLy8gMgogICAgZXh0cmFjdF91aW50MTYKICAgIGZyYW1lX2RpZyAtMQogICAgY292ZXIgMgogICAgc3Vic3RyaW5nMwogICAgc2hhMjU2CiAgICBieXRlY18xIC8vICJhc3NldCIKICAgIHN3YXAKICAgIGNvbmNhdAogICAgZHVwCiAgICBib3hfZGVsCiAgICBwb3AKICAgIGZyYW1lX2RpZyAtMQogICAgYm94X3B1dAogICAgcmV0c3ViCg==", "clear": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"}}"""
+_APP_SPEC_JSON = r"""{"arcs": [], "bareActions": {"call": [], "create": ["NoOp"]}, "methods": [{"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "account", "name": "account"}], "name": "add_students", "returns": {"type": "void"}, "events": []}, {"actions": {"call": ["NoOp"], "create": []}, "args": [], "name": "claim_algo", "returns": {"type": "void"}, "events": []}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "pay", "name": "mbr_pay"}, {"type": "asset", "name": "asset"}], "name": "opt_in_to_asset", "returns": {"type": "void"}, "events": []}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "byte[]", "name": "array"}], "name": "sum", "returns": {"type": "uint64"}, "events": []}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "string", "name": "value"}], "name": "update_box", "returns": {"type": "string"}, "events": []}], "name": "Eval", "state": {"keys": {"box": {}, "global": {}, "local": {}}, "maps": {"box": {}, "global": {}, "local": {}}, "schema": {"global": {"bytes": 0, "ints": 0}, "local": {"bytes": 0, "ints": 0}}}, "structs": {}, "source": {"approval": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhcHAuRXZhbC5fX2FsZ29weV9lbnRyeXBvaW50X3dpdGhfaW5pdCgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAxIDAgMgogICAgYnl0ZWNibG9jayAweDgwIDB4MTUxZjdjNzUgInExIiAicTIiICJxMyIgInE0IgogICAgLy8gYXBwLnB5OjIwCiAgICAvLyBjbGFzcyBFdmFsKEFSQzRDb250cmFjdCk6CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9iYXJlX3JvdXRpbmdAMTAKICAgIHB1c2hieXRlc3MgMHg5MWRmYTAyNCAweGNlZWU2YzFhIDB4YzdiOWJiYjMgMHg0ZjU0ZTc4NyAweGE3MmFjZWVkIC8vIG1ldGhvZCAiYWRkX3N0dWRlbnRzKGFjY291bnQpdm9pZCIsIG1ldGhvZCAiY2xhaW1fYWxnbygpdm9pZCIsIG1ldGhvZCAib3B0X2luX3RvX2Fzc2V0KHBheSxhc3NldCl2b2lkIiwgbWV0aG9kICJzdW0oYnl0ZVtdKXVpbnQ2NCIsIG1ldGhvZCAidXBkYXRlX2JveChzdHJpbmcpc3RyaW5nIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9hZGRfc3R1ZGVudHNfcm91dGVANSBtYWluX2NsYWltX2FsZ29fcm91dGVANiBtYWluX29wdF9pbl90b19hc3NldF9yb3V0ZUA3IG1haW5fc3VtX3JvdXRlQDggbWFpbl91cGRhdGVfYm94X3JvdXRlQDkKCm1haW5fYWZ0ZXJfaWZfZWxzZUAxMjoKICAgIC8vIGFwcC5weToyMAogICAgLy8gY2xhc3MgRXZhbChBUkM0Q29udHJhY3QpOgogICAgaW50Y18xIC8vIDAKICAgIHJldHVybgoKbWFpbl91cGRhdGVfYm94X3JvdXRlQDk6CiAgICAvLyBhcHAucHk6NzAKICAgIC8vIEBhcmM0LmFiaW1ldGhvZCgpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIGFwcC5weToyMAogICAgLy8gY2xhc3MgRXZhbChBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgLy8gYXBwLnB5OjcwCiAgICAvLyBAYXJjNC5hYmltZXRob2QoKQogICAgY2FsbHN1YiB1cGRhdGVfYm94CiAgICBieXRlY18xIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX3N1bV9yb3V0ZUA4OgogICAgLy8gYXBwLnB5OjU4CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gYXBwLnB5OjIwCiAgICAvLyBjbGFzcyBFdmFsKEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBleHRyYWN0IDIgMAogICAgLy8gYXBwLnB5OjU4CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIGNhbGxzdWIgc3VtCiAgICBpdG9iCiAgICBieXRlY18xIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX29wdF9pbl90b19hc3NldF9yb3V0ZUA3OgogICAgLy8gYXBwLnB5OjQ0CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gYXBwLnB5OjIwCiAgICAvLyBjbGFzcyBFdmFsKEFSQzRDb250cmFjdCk6CiAgICB0eG4gR3JvdXBJbmRleAogICAgaW50Y18wIC8vIDEKICAgIC0KICAgIGR1cAogICAgZ3R4bnMgVHlwZUVudW0KICAgIGludGNfMCAvLyBwYXkKICAgID09CiAgICBhc3NlcnQgLy8gdHJhbnNhY3Rpb24gdHlwZSBpcyBwYXkKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGJ0b2kKICAgIHR4bmFzIEFzc2V0cwogICAgLy8gYXBwLnB5OjQ0CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIGNhbGxzdWIgb3B0X2luX3RvX2Fzc2V0CiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2NsYWltX2FsZ29fcm91dGVANjoKICAgIC8vIGFwcC5weTozMwogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIGNhbGxzdWIgY2xhaW1fYWxnbwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl9hZGRfc3R1ZGVudHNfcm91dGVANToKICAgIC8vIGFwcC5weToyOAogICAgLy8gQGFyYzQuYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gYXBwLnB5OjIwCiAgICAvLyBjbGFzcyBFdmFsKEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBidG9pCiAgICB0eG5hcyBBY2NvdW50cwogICAgLy8gYXBwLnB5OjI4CiAgICAvLyBAYXJjNC5hYmltZXRob2QoKQogICAgY2FsbHN1YiBhZGRfc3R1ZGVudHMKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fYmFyZV9yb3V0aW5nQDEwOgogICAgLy8gYXBwLnB5OjIwCiAgICAvLyBjbGFzcyBFdmFsKEFSQzRDb250cmFjdCk6CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBibnogbWFpbl9hZnRlcl9pZl9lbHNlQDEyCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBjcmVhdGluZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKCi8vIGFwcC5FdmFsLmFkZF9zdHVkZW50cyhhY2NvdW50OiBieXRlcykgLT4gdm9pZDoKYWRkX3N0dWRlbnRzOgogICAgLy8gYXBwLnB5OjI4LTI5CiAgICAvLyBAYXJjNC5hYmltZXRob2QoKQogICAgLy8gZGVmIGFkZF9zdHVkZW50cyhzZWxmLCBhY2NvdW50OiBBY2NvdW50KSAtPiBOb25lOgogICAgcHJvdG8gMSAwCiAgICAvLyBhcHAucHk6MzAKICAgIC8vIGFzc2VydCBUeG4uc2VuZGVyID09IEdsb2JhbC5jcmVhdG9yX2FkZHJlc3MKICAgIHR4biBTZW5kZXIKICAgIGdsb2JhbCBDcmVhdG9yQWRkcmVzcwogICAgPT0KICAgIGFzc2VydAogICAgLy8gYXBwLnB5OjMxCiAgICAvLyBzZWxmLnE0X3N0cmluZ1thY2NvdW50XSA9IGFyYzQuU3RyaW5nKCIgIikKICAgIGZyYW1lX2RpZyAtMQogICAgYm94X2RlbAogICAgcG9wCiAgICBmcmFtZV9kaWcgLTEKICAgIHB1c2hieXRlcyAweDAwMDEyMAogICAgYm94X3B1dAogICAgcmV0c3ViCgoKLy8gYXBwLkV2YWwuY2xhaW1fYWxnbygpIC0+IHZvaWQ6CmNsYWltX2FsZ286CiAgICAvLyBhcHAucHk6MzUKICAgIC8vIGFzc2VydCBUeG4uc2VuZGVyIGluIHNlbGYucTRfc3RyaW5nCiAgICB0eG4gU2VuZGVyCiAgICBib3hfbGVuCiAgICBidXJ5IDEKICAgIGFzc2VydAogICAgLy8gYXBwLnB5OjM2CiAgICAvLyBhc3NlcnQgVHhuLnNlbmRlciBub3QgaW4gc2VsZi5xMQogICAgYnl0ZWNfMiAvLyAicTEiCiAgICB0eG4gU2VuZGVyCiAgICBjb25jYXQKICAgIGJveF9sZW4KICAgIGJ1cnkgMQogICAgIQogICAgYXNzZXJ0CiAgICAvLyBhcHAucHk6MzcKICAgIC8vIHNlbGYucTFbVHhuLnNlbmRlcl0gPSBhcmM0LkJvb2woVHJ1ZSkKICAgIGJ5dGVjXzIgLy8gInExIgogICAgdHhuIFNlbmRlcgogICAgY29uY2F0CiAgICBieXRlY18wIC8vIDB4ODAKICAgIGJveF9wdXQKICAgIC8vIGFwcC5weTozOC00MgogICAgLy8gaXR4bi5QYXltZW50KAogICAgLy8gICAgIHJlY2VpdmVyPVR4bi5zZW5kZXIsCiAgICAvLyAgICAgYW1vdW50PTUwMF8wMDAsCiAgICAvLyAgICAgZmVlPTIqb3AuR2xvYmFsLm1pbl90eG5fZmVlCiAgICAvLyApLnN1Ym1pdCgpCiAgICBpdHhuX2JlZ2luCiAgICAvLyBhcHAucHk6NDEKICAgIC8vIGZlZT0yKm9wLkdsb2JhbC5taW5fdHhuX2ZlZQogICAgaW50Y18yIC8vIDIKICAgIGdsb2JhbCBNaW5UeG5GZWUKICAgICoKICAgIC8vIGFwcC5weTozOQogICAgLy8gcmVjZWl2ZXI9VHhuLnNlbmRlciwKICAgIHR4biBTZW5kZXIKICAgIC8vIGFwcC5weTo0MAogICAgLy8gYW1vdW50PTUwMF8wMDAsCiAgICBwdXNoaW50IDUwMDAwMCAvLyA1MDAwMDAKICAgIGl0eG5fZmllbGQgQW1vdW50CiAgICBpdHhuX2ZpZWxkIFJlY2VpdmVyCiAgICAvLyBhcHAucHk6MzgKICAgIC8vIGl0eG4uUGF5bWVudCgKICAgIGludGNfMCAvLyBwYXkKICAgIGl0eG5fZmllbGQgVHlwZUVudW0KICAgIGl0eG5fZmllbGQgRmVlCiAgICAvLyBhcHAucHk6MzgtNDIKICAgIC8vIGl0eG4uUGF5bWVudCgKICAgIC8vICAgICByZWNlaXZlcj1UeG4uc2VuZGVyLAogICAgLy8gICAgIGFtb3VudD01MDBfMDAwLAogICAgLy8gICAgIGZlZT0yKm9wLkdsb2JhbC5taW5fdHhuX2ZlZQogICAgLy8gKS5zdWJtaXQoKQogICAgaXR4bl9zdWJtaXQKICAgIHJldHN1YgoKCi8vIGFwcC5FdmFsLm9wdF9pbl90b19hc3NldChtYnJfcGF5OiB1aW50NjQsIGFzc2V0OiB1aW50NjQpIC0+IHZvaWQ6Cm9wdF9pbl90b19hc3NldDoKICAgIC8vIGFwcC5weTo0NC00NQogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICAvLyBkZWYgb3B0X2luX3RvX2Fzc2V0KHNlbGYsIG1icl9wYXk6IGd0eG4uUGF5bWVudFRyYW5zYWN0aW9uLCBhc3NldDogQXNzZXQpIC0+IE5vbmU6CiAgICBwcm90byAyIDAKICAgIC8vIGFwcC5weTo0NgogICAgLy8gYXNzZXJ0IFR4bi5zZW5kZXIgaW4gc2VsZi5xNF9zdHJpbmcKICAgIHR4biBTZW5kZXIKICAgIGJveF9sZW4KICAgIGJ1cnkgMQogICAgYXNzZXJ0CiAgICAvLyBhcHAucHk6NDcKICAgIC8vIGFzc2VydCBUeG4uc2VuZGVyIG5vdCBpbiBzZWxmLnEyCiAgICBieXRlY18zIC8vICJxMiIKICAgIHR4biBTZW5kZXIKICAgIGNvbmNhdAogICAgYm94X2xlbgogICAgYnVyeSAxCiAgICAhCiAgICBhc3NlcnQKICAgIC8vIGFwcC5weTo0OAogICAgLy8gc2VsZi5xMltUeG4uc2VuZGVyXSA9IGFyYzQuQm9vbChUcnVlKQogICAgYnl0ZWNfMyAvLyAicTIiCiAgICB0eG4gU2VuZGVyCiAgICBjb25jYXQKICAgIGJ5dGVjXzAgLy8gMHg4MAogICAgYm94X3B1dAogICAgLy8gYXBwLnB5OjQ5CiAgICAvLyBhc3NlcnQgbm90IEdsb2JhbC5jdXJyZW50X2FwcGxpY2F0aW9uX2FkZHJlc3MuaXNfb3B0ZWRfaW4oYXNzZXQpCiAgICBnbG9iYWwgQ3VycmVudEFwcGxpY2F0aW9uQWRkcmVzcwogICAgZnJhbWVfZGlnIC0xCiAgICBhc3NldF9ob2xkaW5nX2dldCBBc3NldEJhbGFuY2UKICAgIGJ1cnkgMQogICAgIQogICAgYXNzZXJ0CiAgICAvLyBhcHAucHk6NTAKICAgIC8vIGFzc2VydCBtYnJfcGF5LnJlY2VpdmVyID09IEdsb2JhbC5jdXJyZW50X2FwcGxpY2F0aW9uX2FkZHJlc3MKICAgIGZyYW1lX2RpZyAtMgogICAgZ3R4bnMgUmVjZWl2ZXIKICAgIGdsb2JhbCBDdXJyZW50QXBwbGljYXRpb25BZGRyZXNzCiAgICA9PQogICAgYXNzZXJ0CiAgICAvLyBhcHAucHk6NTEKICAgIC8vIGFzc2VydCBtYnJfcGF5LmFtb3VudCA9PSBHbG9iYWwubWluX2JhbGFuY2UgKyBHbG9iYWwuYXNzZXRfb3B0X2luX21pbl9iYWxhbmNlCiAgICBmcmFtZV9kaWcgLTIKICAgIGd0eG5zIEFtb3VudAogICAgZ2xvYmFsIE1pbkJhbGFuY2UKICAgIGdsb2JhbCBBc3NldE9wdEluTWluQmFsYW5jZQogICAgKwogICAgPT0KICAgIGFzc2VydAogICAgLy8gYXBwLnB5OjUyLTU2CiAgICAvLyBpdHhuLkFzc2V0VHJhbnNmZXIoCiAgICAvLyAgICAgeGZlcl9hc3NldD1hc3NldC5pZCwKICAgIC8vICAgICBhc3NldF9yZWNlaXZlcj1HbG9iYWwuY3VycmVudF9hcHBsaWNhdGlvbl9hZGRyZXNzLAogICAgLy8gICAgIGFzc2V0X2Ftb3VudD0wLAogICAgLy8gKS5zdWJtaXQoKQogICAgaXR4bl9iZWdpbgogICAgLy8gYXBwLnB5OjU0CiAgICAvLyBhc3NldF9yZWNlaXZlcj1HbG9iYWwuY3VycmVudF9hcHBsaWNhdGlvbl9hZGRyZXNzLAogICAgZ2xvYmFsIEN1cnJlbnRBcHBsaWNhdGlvbkFkZHJlc3MKICAgIC8vIGFwcC5weTo1NQogICAgLy8gYXNzZXRfYW1vdW50PTAsCiAgICBpbnRjXzEgLy8gMAogICAgaXR4bl9maWVsZCBBc3NldEFtb3VudAogICAgaXR4bl9maWVsZCBBc3NldFJlY2VpdmVyCiAgICBmcmFtZV9kaWcgLTEKICAgIGl0eG5fZmllbGQgWGZlckFzc2V0CiAgICAvLyBhcHAucHk6NTIKICAgIC8vIGl0eG4uQXNzZXRUcmFuc2ZlcigKICAgIHB1c2hpbnQgNCAvLyBheGZlcgogICAgaXR4bl9maWVsZCBUeXBlRW51bQogICAgaW50Y18xIC8vIDAKICAgIGl0eG5fZmllbGQgRmVlCiAgICAvLyBhcHAucHk6NTItNTYKICAgIC8vIGl0eG4uQXNzZXRUcmFuc2ZlcigKICAgIC8vICAgICB4ZmVyX2Fzc2V0PWFzc2V0LmlkLAogICAgLy8gICAgIGFzc2V0X3JlY2VpdmVyPUdsb2JhbC5jdXJyZW50X2FwcGxpY2F0aW9uX2FkZHJlc3MsCiAgICAvLyAgICAgYXNzZXRfYW1vdW50PTAsCiAgICAvLyApLnN1Ym1pdCgpCiAgICBpdHhuX3N1Ym1pdAogICAgcmV0c3ViCgoKLy8gYXBwLkV2YWwuc3VtKGFycmF5OiBieXRlcykgLT4gdWludDY0OgpzdW06CiAgICAvLyBhcHAucHk6NTgtNTkKICAgIC8vIEBhcmM0LmFiaW1ldGhvZAogICAgLy8gZGVmIHN1bShzZWxmLCBhcnJheTogQnl0ZXMpIC0+IFVJbnQ2NDoKICAgIHByb3RvIDEgMQogICAgLy8gYXBwLnB5OjYwCiAgICAvLyBhc3NlcnQgVHhuLnNlbmRlciBpbiBzZWxmLnE0X3N0cmluZwogICAgdHhuIFNlbmRlcgogICAgYm94X2xlbgogICAgYnVyeSAxCiAgICBhc3NlcnQKICAgIC8vIGFwcC5weTo2MQogICAgLy8gYXNzZXJ0IFR4bi5zZW5kZXIgbm90IGluIHNlbGYucTMKICAgIGJ5dGVjIDQgLy8gInEzIgogICAgdHhuIFNlbmRlcgogICAgY29uY2F0CiAgICBib3hfbGVuCiAgICBidXJ5IDEKICAgICEKICAgIGFzc2VydAogICAgLy8gYXBwLnB5OjYyCiAgICAvLyBzZWxmLnEzW1R4bi5zZW5kZXJdID0gYXJjNC5Cb29sKFRydWUpCiAgICBieXRlYyA0IC8vICJxMyIKICAgIHR4biBTZW5kZXIKICAgIGNvbmNhdAogICAgYnl0ZWNfMCAvLyAweDgwCiAgICBib3hfcHV0CiAgICAvLyBhcHAucHk6NjMKICAgIC8vIGFzc2VydCBhcnJheS5sZW5ndGggPT0gMgogICAgZnJhbWVfZGlnIC0xCiAgICBsZW4KICAgIGR1cAogICAgaW50Y18yIC8vIDIKICAgID09CiAgICBhc3NlcnQKICAgIC8vIGFwcC5weTo2NQogICAgLy8gdG90YWwgPSBVSW50NjQoMCkKICAgIGludGNfMSAvLyAwCiAgICBkdXAKCnN1bV9mb3JfaGVhZGVyQDE6CiAgICAvLyBhcHAucHk6NjYKICAgIC8vIGZvciBuIGluIGFycmF5OgogICAgZnJhbWVfZGlnIDIKICAgIGZyYW1lX2RpZyAwCiAgICA8CiAgICBieiBzdW1fYWZ0ZXJfZm9yQDQKICAgIC8vIGFwcC5weTo2NwogICAgLy8gdG90YWwgKz0gb3AuYnRvaShuKQogICAgZnJhbWVfZGlnIC0xCiAgICBmcmFtZV9kaWcgMgogICAgZHVwCiAgICBjb3ZlciAyCiAgICBnZXRieXRlCiAgICBmcmFtZV9kaWcgMQogICAgKwogICAgZnJhbWVfYnVyeSAxCiAgICBpbnRjXzAgLy8gMQogICAgKwogICAgZnJhbWVfYnVyeSAyCiAgICBiIHN1bV9mb3JfaGVhZGVyQDEKCnN1bV9hZnRlcl9mb3JANDoKICAgIC8vIGFwcC5weTo2OAogICAgLy8gcmV0dXJuIHRvdGFsCiAgICBmcmFtZV9kaWcgMQogICAgZnJhbWVfYnVyeSAwCiAgICByZXRzdWIKCgovLyBhcHAuRXZhbC51cGRhdGVfYm94KHZhbHVlOiBieXRlcykgLT4gYnl0ZXM6CnVwZGF0ZV9ib3g6CiAgICAvLyBhcHAucHk6NzAtNzEKICAgIC8vIEBhcmM0LmFiaW1ldGhvZCgpCiAgICAvLyBkZWYgdXBkYXRlX2JveChzZWxmLCB2YWx1ZTogYXJjNC5TdHJpbmcpIC0+IGFyYzQuU3RyaW5nOgogICAgcHJvdG8gMSAxCiAgICAvLyBhcHAucHk6NzIKICAgIC8vIGFzc2VydCBUeG4uc2VuZGVyIGluIHNlbGYucTRfc3RyaW5nCiAgICB0eG4gU2VuZGVyCiAgICBib3hfbGVuCiAgICBidXJ5IDEKICAgIGFzc2VydAogICAgLy8gYXBwLnB5OjczCiAgICAvLyBhc3NlcnQgVHhuLnNlbmRlciBub3QgaW4gc2VsZi5xNAogICAgYnl0ZWMgNSAvLyAicTQiCiAgICB0eG4gU2VuZGVyCiAgICBjb25jYXQKICAgIGJveF9sZW4KICAgIGJ1cnkgMQogICAgIQogICAgYXNzZXJ0CiAgICAvLyBhcHAucHk6NzQKICAgIC8vIHNlbGYucTRbVHhuLnNlbmRlcl0gPSBhcmM0LkJvb2woVHJ1ZSkKICAgIGJ5dGVjIDUgLy8gInE0IgogICAgdHhuIFNlbmRlcgogICAgY29uY2F0CiAgICBieXRlY18wIC8vIDB4ODAKICAgIGJveF9wdXQKICAgIC8vIGFwcC5weTo3NQogICAgLy8gc2VsZi5xNF9zdHJpbmdbVHhuLnNlbmRlcl0gPSB2YWx1ZQogICAgdHhuIFNlbmRlcgogICAgZHVwCiAgICBib3hfZGVsCiAgICBwb3AKICAgIGZyYW1lX2RpZyAtMQogICAgYm94X3B1dAogICAgLy8gYXBwLnB5Ojc2CiAgICAvLyByZXR1cm4gc2VsZi5xNF9zdHJpbmdbVHhuLnNlbmRlcl0KICAgIHR4biBTZW5kZXIKICAgIGJveF9nZXQKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLnE0X3N0cmluZyBlbnRyeSBleGlzdHMKICAgIHJldHN1Ygo=", "clear": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"}}"""
 APP_SPEC = algokit_utils.Arc56Contract.from_json(_APP_SPEC_JSON)
 
 def _parse_abi_args(args: object | None = None) -> list[object] | None:
@@ -64,112 +64,108 @@ def _init_dataclass(cls: type, data: dict) -> object:
             field_values[field.name] = field_value
     return cls(**field_values)
 
-@dataclasses.dataclass(frozen=True)
-class GameAsset:
-    """Struct for GameAsset"""
-    name: str
-    description: str
-    price: int
-
-@dataclasses.dataclass(frozen=True)
-class User:
-    """Struct for User"""
-    registered_at: int
-    name: str
-    balance: int
-
-
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class RegisterArgs:
-    """Dataclass for register arguments"""
-    name: str
+class AddStudentsArgs:
+    """Dataclass for add_students arguments"""
+    account: str | bytes
 
     @property
     def abi_method_signature(self) -> str:
-        return "register(string)(uint64,string,uint64)"
+        return "add_students(account)void"
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class FundAccountArgs:
-    """Dataclass for fund_account arguments"""
-    payment: algokit_utils.AppMethodCallTransactionArgument
+class OptInToAssetArgs:
+    """Dataclass for opt_in_to_asset arguments"""
+    mbr_pay: algokit_utils.AppMethodCallTransactionArgument
+    asset: int
 
     @property
     def abi_method_signature(self) -> str:
-        return "fund_account(pay)uint64"
+        return "opt_in_to_asset(pay,asset)void"
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class BuyAssetArgs:
-    """Dataclass for buy_asset arguments"""
-    asset_id: bytes | str
-    quantity: int
+class SumArgs:
+    """Dataclass for sum arguments"""
+    array: bytes | str
 
     @property
     def abi_method_signature(self) -> str:
-        return "buy_asset(byte[],uint64)void"
+        return "sum(byte[])uint64"
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class AdminUpsertAssetArgs:
-    """Dataclass for admin_upsert_asset arguments"""
-    asset: GameAsset
+class UpdateBoxArgs:
+    """Dataclass for update_box arguments"""
+    value: str
 
     @property
     def abi_method_signature(self) -> str:
-        return "admin_upsert_asset((string,string,uint64))void"
+        return "update_box(string)string"
 
 
-class GameParams:
+class EvalParams:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
 
-    def register(
+    def add_students(
         self,
-        args: tuple[str] | RegisterArgs,
+        args: tuple[str | bytes] | AddStudentsArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> algokit_utils.AppCallMethodCallParams:
         method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "register(string)(uint64,string,uint64)",
+            "method": "add_students(account)void",
             "args": method_args,
         }))
 
-    def fund_account(
+    def claim_algo(
         self,
-        args: tuple[algokit_utils.AppMethodCallTransactionArgument] | FundAccountArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.AppCallMethodCallParams:
+    
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "claim_algo()void",
+        }))
+
+    def opt_in_to_asset(
+        self,
+        args: tuple[algokit_utils.AppMethodCallTransactionArgument, int] | OptInToAssetArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> algokit_utils.AppCallMethodCallParams:
         method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "fund_account(pay)uint64",
+            "method": "opt_in_to_asset(pay,asset)void",
             "args": method_args,
         }))
 
-    def buy_asset(
+    def sum(
         self,
-        args: tuple[bytes | str, int] | BuyAssetArgs,
+        args: tuple[bytes | str] | SumArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> algokit_utils.AppCallMethodCallParams:
         method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "buy_asset(byte[],uint64)void",
+            "method": "sum(byte[])uint64",
             "args": method_args,
         }))
 
-    def admin_upsert_asset(
+    def update_box(
         self,
-        args: tuple[GameAsset] | AdminUpsertAssetArgs,
+        args: tuple[str] | UpdateBoxArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> algokit_utils.AppCallMethodCallParams:
         method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "admin_upsert_asset((string,string,uint64))void",
+            "method": "update_box(string)string",
             "args": method_args,
         }))
 
@@ -184,59 +180,70 @@ class GameParams:
         )
 
 
-class GameCreateTransactionParams:
+class EvalCreateTransactionParams:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
 
-    def register(
+    def add_students(
         self,
-        args: tuple[str] | RegisterArgs,
+        args: tuple[str | bytes] | AddStudentsArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> algokit_utils.BuiltTransactions:
         method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "register(string)(uint64,string,uint64)",
+            "method": "add_students(account)void",
             "args": method_args,
         }))
 
-    def fund_account(
+    def claim_algo(
         self,
-        args: tuple[algokit_utils.AppMethodCallTransactionArgument] | FundAccountArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.BuiltTransactions:
+    
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "claim_algo()void",
+        }))
+
+    def opt_in_to_asset(
+        self,
+        args: tuple[algokit_utils.AppMethodCallTransactionArgument, int] | OptInToAssetArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> algokit_utils.BuiltTransactions:
         method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "fund_account(pay)uint64",
+            "method": "opt_in_to_asset(pay,asset)void",
             "args": method_args,
         }))
 
-    def buy_asset(
+    def sum(
         self,
-        args: tuple[bytes | str, int] | BuyAssetArgs,
+        args: tuple[bytes | str] | SumArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> algokit_utils.BuiltTransactions:
         method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "buy_asset(byte[],uint64)void",
+            "method": "sum(byte[])uint64",
             "args": method_args,
         }))
 
-    def admin_upsert_asset(
+    def update_box(
         self,
-        args: tuple[GameAsset] | AdminUpsertAssetArgs,
+        args: tuple[str] | UpdateBoxArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> algokit_utils.BuiltTransactions:
         method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "admin_upsert_asset((string,string,uint64))void",
+            "method": "update_box(string)string",
             "args": method_args,
         }))
 
@@ -251,29 +258,59 @@ class GameCreateTransactionParams:
         )
 
 
-class GameSend:
+class EvalSend:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
 
-    def register(
+    def add_students(
         self,
-        args: tuple[str] | RegisterArgs,
+        args: tuple[str | bytes] | AddStudentsArgs,
         params: algokit_utils.CommonAppCallParams | None = None,
         send_params: algokit_utils.SendParams | None = None
-    ) -> algokit_utils.SendAppTransactionResult[User]:
+    ) -> algokit_utils.SendAppTransactionResult[None]:
         method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "register(string)(uint64,string,uint64)",
+            "method": "add_students(account)void",
             "args": method_args,
         }), send_params=send_params)
-        parsed_response = dataclasses.replace(response, abi_return=_init_dataclass(User, typing.cast(dict, response.abi_return))) # type: ignore
-        return typing.cast(algokit_utils.SendAppTransactionResult[User], parsed_response)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
 
-    def fund_account(
+    def claim_algo(
         self,
-        args: tuple[algokit_utils.AppMethodCallTransactionArgument] | FundAccountArgs,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[None]:
+    
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "claim_algo()void",
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
+
+    def opt_in_to_asset(
+        self,
+        args: tuple[algokit_utils.AppMethodCallTransactionArgument, int] | OptInToAssetArgs,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[None]:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "opt_in_to_asset(pay,asset)void",
+            "args": method_args,
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
+
+    def sum(
+        self,
+        args: tuple[bytes | str] | SumArgs,
         params: algokit_utils.CommonAppCallParams | None = None,
         send_params: algokit_utils.SendParams | None = None
     ) -> algokit_utils.SendAppTransactionResult[int]:
@@ -281,43 +318,27 @@ class GameSend:
         params = params or algokit_utils.CommonAppCallParams()
         response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "fund_account(pay)uint64",
+            "method": "sum(byte[])uint64",
             "args": method_args,
         }), send_params=send_params)
         parsed_response = response
         return typing.cast(algokit_utils.SendAppTransactionResult[int], parsed_response)
 
-    def buy_asset(
+    def update_box(
         self,
-        args: tuple[bytes | str, int] | BuyAssetArgs,
+        args: tuple[str] | UpdateBoxArgs,
         params: algokit_utils.CommonAppCallParams | None = None,
         send_params: algokit_utils.SendParams | None = None
-    ) -> algokit_utils.SendAppTransactionResult[None]:
+    ) -> algokit_utils.SendAppTransactionResult[str]:
         method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "buy_asset(byte[],uint64)void",
+            "method": "update_box(string)string",
             "args": method_args,
         }), send_params=send_params)
         parsed_response = response
-        return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
-
-    def admin_upsert_asset(
-        self,
-        args: tuple[GameAsset] | AdminUpsertAssetArgs,
-        params: algokit_utils.CommonAppCallParams | None = None,
-        send_params: algokit_utils.SendParams | None = None
-    ) -> algokit_utils.SendAppTransactionResult[None]:
-        method_args = _parse_abi_args(args)
-        params = params or algokit_utils.CommonAppCallParams()
-        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
-            **dataclasses.asdict(params),
-            "method": "admin_upsert_asset((string,string,uint64))void",
-            "args": method_args,
-        }), send_params=send_params)
-        parsed_response = response
-        return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
+        return typing.cast(algokit_utils.SendAppTransactionResult[str], parsed_response)
 
     def clear_state(
         self,
@@ -330,14 +351,14 @@ class GameSend:
         )
 
 
-class GameState:
-    """Methods to access state for the current Game app"""
+class EvalState:
+    """Methods to access state for the current Eval app"""
 
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
 
-class GameClient:
-    """Client for interacting with Game smart contract"""
+class EvalClient:
+    """Client for interacting with Eval smart contract"""
 
     @typing.overload
     def __init__(self, app_client: algokit_utils.AppClient) -> None: ...
@@ -385,10 +406,10 @@ class GameClient:
         else:
             raise ValueError("Either app_client or algorand and app_id must be provided")
     
-        self.params = GameParams(self.app_client)
-        self.create_transaction = GameCreateTransactionParams(self.app_client)
-        self.send = GameSend(self.app_client)
-        self.state = GameState(self.app_client)
+        self.params = EvalParams(self.app_client)
+        self.create_transaction = EvalCreateTransactionParams(self.app_client)
+        self.send = EvalSend(self.app_client)
+        self.state = EvalState(self.app_client)
 
     @staticmethod
     def from_creator_and_name(
@@ -401,8 +422,8 @@ class GameClient:
         clear_source_map: SourceMap | None = None,
         ignore_cache: bool | None = None,
         app_lookup_cache: algokit_utils.ApplicationLookup | None = None,
-    ) -> "GameClient":
-        return GameClient(
+    ) -> "EvalClient":
+        return EvalClient(
             algokit_utils.AppClient.from_creator_and_name(
                 creator_address=creator_address,
                 app_name=app_name,
@@ -425,8 +446,8 @@ class GameClient:
         default_signer: TransactionSigner | None = None,
         approval_source_map: SourceMap | None = None,
         clear_source_map: SourceMap | None = None,
-    ) -> "GameClient":
-        return GameClient(
+    ) -> "EvalClient":
+        return EvalClient(
             algokit_utils.AppClient.from_network(
                 app_spec=APP_SPEC,
                 algorand=algorand,
@@ -465,8 +486,8 @@ class GameClient:
         default_signer: TransactionSigner | None = None,
         approval_source_map: SourceMap | None = None,
         clear_source_map: SourceMap | None = None,
-    ) -> "GameClient":
-        return GameClient(
+    ) -> "EvalClient":
+        return EvalClient(
             self.app_client.clone(
                 app_name=app_name,
                 default_sender=default_sender,
@@ -476,33 +497,39 @@ class GameClient:
             )
         )
 
-    def new_group(self) -> "GameComposer":
-        return GameComposer(self)
+    def new_group(self) -> "EvalComposer":
+        return EvalComposer(self)
 
     @typing.overload
     def decode_return_value(
         self,
-        method: typing.Literal["register(string)(uint64,string,uint64)"],
+        method: typing.Literal["add_students(account)void"],
         return_value: algokit_utils.ABIReturn | None
-    ) -> User | None: ...
+    ) -> None: ...
     @typing.overload
     def decode_return_value(
         self,
-        method: typing.Literal["fund_account(pay)uint64"],
+        method: typing.Literal["claim_algo()void"],
+        return_value: algokit_utils.ABIReturn | None
+    ) -> None: ...
+    @typing.overload
+    def decode_return_value(
+        self,
+        method: typing.Literal["opt_in_to_asset(pay,asset)void"],
+        return_value: algokit_utils.ABIReturn | None
+    ) -> None: ...
+    @typing.overload
+    def decode_return_value(
+        self,
+        method: typing.Literal["sum(byte[])uint64"],
         return_value: algokit_utils.ABIReturn | None
     ) -> int | None: ...
     @typing.overload
     def decode_return_value(
         self,
-        method: typing.Literal["buy_asset(byte[],uint64)void"],
+        method: typing.Literal["update_box(string)string"],
         return_value: algokit_utils.ABIReturn | None
-    ) -> None: ...
-    @typing.overload
-    def decode_return_value(
-        self,
-        method: typing.Literal["admin_upsert_asset((string,string,uint64))void"],
-        return_value: algokit_utils.ABIReturn | None
-    ) -> None: ...
+    ) -> str | None: ...
     @typing.overload
     def decode_return_value(
         self,
@@ -514,7 +541,7 @@ class GameClient:
         self,
         method: str,
         return_value: algokit_utils.ABIReturn | None
-    ) -> algokit_utils.ABIValue | algokit_utils.ABIStruct | None | User | int:
+    ) -> algokit_utils.ABIValue | algokit_utils.ABIStruct | None | int | str:
         """Decode ABI return value for the given method."""
         if return_value is None:
             return None
@@ -534,15 +561,15 @@ class GameClient:
 
 
 @dataclasses.dataclass(frozen=True)
-class GameBareCallCreateParams(algokit_utils.AppClientBareCallCreateParams):
-    """Parameters for creating Game contract with bare calls"""
+class EvalBareCallCreateParams(algokit_utils.AppClientBareCallCreateParams):
+    """Parameters for creating Eval contract with bare calls"""
     on_complete: typing.Literal[OnComplete.NoOpOC] | None = None
 
     def to_algokit_utils_params(self) -> algokit_utils.AppClientBareCallCreateParams:
         return algokit_utils.AppClientBareCallCreateParams(**self.__dict__)
 
-class GameFactory(algokit_utils.TypedAppFactoryProtocol[GameBareCallCreateParams, None, None]):
-    """Factory for deploying and managing GameClient smart contracts"""
+class EvalFactory(algokit_utils.TypedAppFactoryProtocol[EvalBareCallCreateParams, None, None]):
+    """Factory for deploying and managing EvalClient smart contracts"""
 
     def __init__(
         self,
@@ -565,9 +592,9 @@ class GameFactory(algokit_utils.TypedAppFactoryProtocol[GameBareCallCreateParams
                 compilation_params=compilation_params,
             )
         )
-        self.params = GameFactoryParams(self.app_factory)
-        self.create_transaction = GameFactoryCreateTransaction(self.app_factory)
-        self.send = GameFactorySend(self.app_factory)
+        self.params = EvalFactoryParams(self.app_factory)
+        self.create_transaction = EvalFactoryCreateTransaction(self.app_factory)
+        self.send = EvalFactorySend(self.app_factory)
 
     @property
     def app_name(self) -> str:
@@ -586,7 +613,7 @@ class GameFactory(algokit_utils.TypedAppFactoryProtocol[GameBareCallCreateParams
         *,
         on_update: algokit_utils.OnUpdate | None = None,
         on_schema_break: algokit_utils.OnSchemaBreak | None = None,
-        create_params: GameBareCallCreateParams | None = None,
+        create_params: EvalBareCallCreateParams | None = None,
         update_params: None = None,
         delete_params: None = None,
         existing_deployments: algokit_utils.ApplicationLookup | None = None,
@@ -594,7 +621,7 @@ class GameFactory(algokit_utils.TypedAppFactoryProtocol[GameBareCallCreateParams
         app_name: str | None = None,
         compilation_params: algokit_utils.AppClientCompilationParams | None = None,
         send_params: algokit_utils.SendParams | None = None,
-    ) -> tuple[GameClient, algokit_utils.AppFactoryDeployResult]:
+    ) -> tuple[EvalClient, algokit_utils.AppFactoryDeployResult]:
         """Deploy the application"""
         deploy_response = self.app_factory.deploy(
             on_update=on_update,
@@ -609,7 +636,7 @@ class GameFactory(algokit_utils.TypedAppFactoryProtocol[GameBareCallCreateParams
             send_params=send_params,
         )
 
-        return GameClient(deploy_response[0]), deploy_response[1]
+        return EvalClient(deploy_response[0]), deploy_response[1]
 
     def get_app_client_by_creator_and_name(
         self,
@@ -621,9 +648,9 @@ class GameFactory(algokit_utils.TypedAppFactoryProtocol[GameBareCallCreateParams
         app_lookup_cache: algokit_utils.ApplicationLookup | None = None,
         approval_source_map: SourceMap | None = None,
         clear_source_map: SourceMap | None = None,
-    ) -> GameClient:
+    ) -> EvalClient:
         """Get an app client by creator address and name"""
-        return GameClient(
+        return EvalClient(
             self.app_factory.get_app_client_by_creator_and_name(
                 creator_address,
                 app_name,
@@ -644,9 +671,9 @@ class GameFactory(algokit_utils.TypedAppFactoryProtocol[GameBareCallCreateParams
         default_signer: TransactionSigner | None = None,
         approval_source_map: SourceMap | None = None,
         clear_source_map: SourceMap | None = None,
-    ) -> GameClient:
+    ) -> EvalClient:
         """Get an app client by app ID"""
-        return GameClient(
+        return EvalClient(
             self.app_factory.get_app_client_by_id(
                 app_id,
                 app_name,
@@ -658,17 +685,17 @@ class GameFactory(algokit_utils.TypedAppFactoryProtocol[GameBareCallCreateParams
         )
 
 
-class GameFactoryParams:
-    """Parameters for creating transactions for Game contract"""
+class EvalFactoryParams:
+    """Parameters for creating transactions for Eval contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
-        self.create = GameFactoryCreateParams(app_factory)
-        self.update = GameFactoryUpdateParams(app_factory)
-        self.delete = GameFactoryDeleteParams(app_factory)
+        self.create = EvalFactoryCreateParams(app_factory)
+        self.update = EvalFactoryUpdateParams(app_factory)
+        self.delete = EvalFactoryDeleteParams(app_factory)
 
-class GameFactoryCreateParams:
-    """Parameters for 'create' operations of Game contract"""
+class EvalFactoryCreateParams:
+    """Parameters for 'create' operations of Eval contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
@@ -685,88 +712,107 @@ class GameFactoryCreateParams:
             algokit_utils.AppFactoryCreateParams(**dataclasses.asdict(params)),
             compilation_params=compilation_params)
 
-    def register(
+    def add_students(
         self,
-        args: tuple[str] | RegisterArgs,
+        args: tuple[str | bytes] | AddStudentsArgs,
         *,
         params: algokit_utils.CommonAppCallCreateParams | None = None,
         compilation_params: algokit_utils.AppClientCompilationParams | None = None
     ) -> algokit_utils.AppCreateMethodCallParams:
-        """Creates a new instance using the register(string)(uint64,string,uint64) ABI method"""
+        """Creates a new instance using the add_students(account)void ABI method"""
         params = params or algokit_utils.CommonAppCallCreateParams()
         return self.app_factory.params.create(
             algokit_utils.AppFactoryCreateMethodCallParams(
                 **{
                 **dataclasses.asdict(params),
-                "method": "register(string)(uint64,string,uint64)",
+                "method": "add_students(account)void",
                 "args": _parse_abi_args(args),
                 }
             ),
             compilation_params=compilation_params
         )
 
-    def fund_account(
+    def claim_algo(
         self,
-        args: tuple[algokit_utils.AppMethodCallTransactionArgument] | FundAccountArgs,
         *,
         params: algokit_utils.CommonAppCallCreateParams | None = None,
         compilation_params: algokit_utils.AppClientCompilationParams | None = None
     ) -> algokit_utils.AppCreateMethodCallParams:
-        """Creates a new instance using the fund_account(pay)uint64 ABI method"""
+        """Creates a new instance using the claim_algo()void ABI method"""
         params = params or algokit_utils.CommonAppCallCreateParams()
         return self.app_factory.params.create(
             algokit_utils.AppFactoryCreateMethodCallParams(
                 **{
                 **dataclasses.asdict(params),
-                "method": "fund_account(pay)uint64",
+                "method": "claim_algo()void",
+                "args": None,
+                }
+            ),
+            compilation_params=compilation_params
+        )
+
+    def opt_in_to_asset(
+        self,
+        args: tuple[algokit_utils.AppMethodCallTransactionArgument, int] | OptInToAssetArgs,
+        *,
+        params: algokit_utils.CommonAppCallCreateParams | None = None,
+        compilation_params: algokit_utils.AppClientCompilationParams | None = None
+    ) -> algokit_utils.AppCreateMethodCallParams:
+        """Creates a new instance using the opt_in_to_asset(pay,asset)void ABI method"""
+        params = params or algokit_utils.CommonAppCallCreateParams()
+        return self.app_factory.params.create(
+            algokit_utils.AppFactoryCreateMethodCallParams(
+                **{
+                **dataclasses.asdict(params),
+                "method": "opt_in_to_asset(pay,asset)void",
                 "args": _parse_abi_args(args),
                 }
             ),
             compilation_params=compilation_params
         )
 
-    def buy_asset(
+    def sum(
         self,
-        args: tuple[bytes | str, int] | BuyAssetArgs,
+        args: tuple[bytes | str] | SumArgs,
         *,
         params: algokit_utils.CommonAppCallCreateParams | None = None,
         compilation_params: algokit_utils.AppClientCompilationParams | None = None
     ) -> algokit_utils.AppCreateMethodCallParams:
-        """Creates a new instance using the buy_asset(byte[],uint64)void ABI method"""
+        """Creates a new instance using the sum(byte[])uint64 ABI method"""
         params = params or algokit_utils.CommonAppCallCreateParams()
         return self.app_factory.params.create(
             algokit_utils.AppFactoryCreateMethodCallParams(
                 **{
                 **dataclasses.asdict(params),
-                "method": "buy_asset(byte[],uint64)void",
+                "method": "sum(byte[])uint64",
                 "args": _parse_abi_args(args),
                 }
             ),
             compilation_params=compilation_params
         )
 
-    def admin_upsert_asset(
+    def update_box(
         self,
-        args: tuple[GameAsset] | AdminUpsertAssetArgs,
+        args: tuple[str] | UpdateBoxArgs,
         *,
         params: algokit_utils.CommonAppCallCreateParams | None = None,
         compilation_params: algokit_utils.AppClientCompilationParams | None = None
     ) -> algokit_utils.AppCreateMethodCallParams:
-        """Creates a new instance using the admin_upsert_asset((string,string,uint64))void ABI method"""
+        """Creates a new instance using the update_box(string)string ABI method"""
         params = params or algokit_utils.CommonAppCallCreateParams()
         return self.app_factory.params.create(
             algokit_utils.AppFactoryCreateMethodCallParams(
                 **{
                 **dataclasses.asdict(params),
-                "method": "admin_upsert_asset((string,string,uint64))void",
+                "method": "update_box(string)string",
                 "args": _parse_abi_args(args),
                 }
             ),
             compilation_params=compilation_params
         )
 
-class GameFactoryUpdateParams:
-    """Parameters for 'update' operations of Game contract"""
+class EvalFactoryUpdateParams:
+    """Parameters for 'update' operations of Eval contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
@@ -783,8 +829,8 @@ class GameFactoryUpdateParams:
             algokit_utils.AppClientBareCallParams(**dataclasses.asdict(params)),
             )
 
-class GameFactoryDeleteParams:
-    """Parameters for 'delete' operations of Game contract"""
+class EvalFactoryDeleteParams:
+    """Parameters for 'delete' operations of Eval contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
@@ -802,16 +848,16 @@ class GameFactoryDeleteParams:
             )
 
 
-class GameFactoryCreateTransaction:
-    """Create transactions for Game contract"""
+class EvalFactoryCreateTransaction:
+    """Create transactions for Eval contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
-        self.create = GameFactoryCreateTransactionCreate(app_factory)
+        self.create = EvalFactoryCreateTransactionCreate(app_factory)
 
 
-class GameFactoryCreateTransactionCreate:
-    """Create new instances of Game contract"""
+class EvalFactoryCreateTransactionCreate:
+    """Create new instances of Eval contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
@@ -827,16 +873,16 @@ class GameFactoryCreateTransactionCreate:
         )
 
 
-class GameFactorySend:
-    """Send calls to Game contract"""
+class EvalFactorySend:
+    """Send calls to Eval contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
-        self.create = GameFactorySendCreate(app_factory)
+        self.create = EvalFactorySendCreate(app_factory)
 
 
-class GameFactorySendCreate:
-    """Send create calls to Game contract"""
+class EvalFactorySendCreate:
+    """Send create calls to Eval contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
@@ -847,7 +893,7 @@ class GameFactorySendCreate:
         params: algokit_utils.CommonAppCallCreateParams | None = None,
         send_params: algokit_utils.SendParams | None = None,
         compilation_params: algokit_utils.AppClientCompilationParams | None = None,
-    ) -> tuple[GameClient, algokit_utils.SendAppCreateTransactionResult]:
+    ) -> tuple[EvalClient, algokit_utils.SendAppCreateTransactionResult]:
         """Creates a new instance using a bare call"""
         params = params or algokit_utils.CommonAppCallCreateParams()
         result = self.app_factory.send.bare.create(
@@ -855,85 +901,102 @@ class GameFactorySendCreate:
             send_params=send_params,
             compilation_params=compilation_params
         )
-        return GameClient(result[0]), result[1]
+        return EvalClient(result[0]), result[1]
 
 
-class GameComposer:
-    """Composer for creating transaction groups for Game contract calls"""
+class EvalComposer:
+    """Composer for creating transaction groups for Eval contract calls"""
 
-    def __init__(self, client: "GameClient"):
+    def __init__(self, client: "EvalClient"):
         self.client = client
         self._composer = client.algorand.new_group()
         self._result_mappers: list[typing.Callable[[algokit_utils.ABIReturn | None], object] | None] = []
 
-    def register(
+    def add_students(
         self,
-        args: tuple[str] | RegisterArgs,
+        args: tuple[str | bytes] | AddStudentsArgs,
         params: algokit_utils.CommonAppCallParams | None = None
-    ) -> "GameComposer":
+    ) -> "EvalComposer":
         self._composer.add_app_call_method_call(
-            self.client.params.register(
+            self.client.params.add_students(
                 args=args,
                 params=params,
             )
         )
         self._result_mappers.append(
             lambda v: self.client.decode_return_value(
-                "register(string)(uint64,string,uint64)", v
+                "add_students(account)void", v
             )
         )
         return self
 
-    def fund_account(
+    def claim_algo(
         self,
-        args: tuple[algokit_utils.AppMethodCallTransactionArgument] | FundAccountArgs,
         params: algokit_utils.CommonAppCallParams | None = None
-    ) -> "GameComposer":
+    ) -> "EvalComposer":
         self._composer.add_app_call_method_call(
-            self.client.params.fund_account(
-                args=args,
+            self.client.params.claim_algo(
+                
                 params=params,
             )
         )
         self._result_mappers.append(
             lambda v: self.client.decode_return_value(
-                "fund_account(pay)uint64", v
+                "claim_algo()void", v
             )
         )
         return self
 
-    def buy_asset(
+    def opt_in_to_asset(
         self,
-        args: tuple[bytes | str, int] | BuyAssetArgs,
+        args: tuple[algokit_utils.AppMethodCallTransactionArgument, int] | OptInToAssetArgs,
         params: algokit_utils.CommonAppCallParams | None = None
-    ) -> "GameComposer":
+    ) -> "EvalComposer":
         self._composer.add_app_call_method_call(
-            self.client.params.buy_asset(
+            self.client.params.opt_in_to_asset(
                 args=args,
                 params=params,
             )
         )
         self._result_mappers.append(
             lambda v: self.client.decode_return_value(
-                "buy_asset(byte[],uint64)void", v
+                "opt_in_to_asset(pay,asset)void", v
             )
         )
         return self
 
-    def admin_upsert_asset(
+    def sum(
         self,
-        args: tuple[GameAsset] | AdminUpsertAssetArgs,
+        args: tuple[bytes | str] | SumArgs,
         params: algokit_utils.CommonAppCallParams | None = None
-    ) -> "GameComposer":
+    ) -> "EvalComposer":
         self._composer.add_app_call_method_call(
-            self.client.params.admin_upsert_asset(
+            self.client.params.sum(
                 args=args,
                 params=params,
             )
         )
         self._result_mappers.append(
             lambda v: self.client.decode_return_value(
-                "admin_upsert_asset((string,string,uint64))void", v
+                "sum(byte[])uint64", v
+            )
+        )
+        return self
+
+    def update_box(
+        self,
+        args: tuple[str] | UpdateBoxArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> "EvalComposer":
+        self._composer.add_app_call_method_call(
+            self.client.params.update_box(
+                args=args,
+                params=params,
+            )
+        )
+        self._result_mappers.append(
+            lambda v: self.client.decode_return_value(
+                "update_box(string)string", v
             )
         )
         return self
@@ -943,7 +1006,7 @@ class GameComposer:
         *,
         args: list[bytes] | None = None,
         params: algokit_utils.CommonAppCallParams | None = None,
-    ) -> "GameComposer":
+    ) -> "EvalComposer":
         params=params or algokit_utils.CommonAppCallParams()
         self._composer.add_app_call(
             self.client.params.clear_state(
@@ -959,7 +1022,7 @@ class GameComposer:
     
     def add_transaction(
         self, txn: Transaction, signer: TransactionSigner | None = None
-    ) -> "GameComposer":
+    ) -> "EvalComposer":
         self._composer.add_transaction(txn, signer)
         return self
     

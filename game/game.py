@@ -250,3 +250,4 @@ if __name__ == "__main__":
         _, _ = buy_asset(ac, "BICYCLE", 1, bob)
     except AssertionError:
         print("Sorry, You can't afford it!")
+        
